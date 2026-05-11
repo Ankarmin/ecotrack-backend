@@ -1,0 +1,180 @@
+{
+  "folders": [
+    {
+      "name": "backend",
+      "path": "."
+    },
+    {
+      "name": "frontend",
+      "path": "../ecotrack-frontend"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit",
+      "source.sortMembers": "explicit"
+    },
+    "security.workspace.trust.untrustedFiles": "prompt",
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.env": true,
+      "**/.env.*": true,
+      "**/.git": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/coverage": true,
+      "**/dist": true,
+      "**/node_modules": true
+    },
+    "search.exclude": {
+      "**/.env": true,
+      "**/.env.*": true,
+      "**/.git": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/coverage": true,
+      "**/dist": true,
+      "**/node_modules": true
+    },
+    "files.watcherExclude": {
+      "**/.git/**": true,
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/.next/**": true,
+      "**/.turbo/**": true,
+      "**/coverage/**": true,
+      "**/dist/**": true,
+      "**/node_modules/**": true
+    },
+    "debug.node.autoAttach": "smart"
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "orta.vscode-jest",
+      "bradlc.vscode-tailwindcss"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Backend: Nest debug",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder:backend}",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run",
+          "start:debug"
+        ],
+        "console": "integratedTerminal",
+        "restart": true,
+        "skipFiles": [
+          "<node_internals>/**"
+        ]
+      },
+      {
+        "name": "Backend: Attach 9229",
+        "type": "node",
+        "request": "attach",
+        "address": "localhost",
+        "port": 9229,
+        "cwd": "${workspaceFolder:backend}",
+        "restart": true,
+        "skipFiles": [
+          "<node_internals>/**"
+        ]
+      },
+      {
+        "name": "Frontend: Next.js dev",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "npm run dev",
+        "cwd": "${workspaceFolder:frontend}"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "backend: dev",
+        "type": "shell",
+        "command": "npm run start:dev",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "backend: build",
+        "type": "shell",
+        "command": "npm run build",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "backend: lint",
+        "type": "shell",
+        "command": "npm run lint",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "backend: test",
+        "type": "shell",
+        "command": "npm run test",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "group": "test",
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend: dev",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:frontend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend: build",
+        "type": "shell",
+        "command": "npm run build",
+        "options": {
+          "cwd": "${workspaceFolder:frontend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "frontend: lint",
+        "type": "shell",
+        "command": "npm run lint",
+        "options": {
+          "cwd": "${workspaceFolder:frontend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "dev: all",
+        "dependsOn": [
+          "backend: dev",
+          "frontend: dev"
+        ],
+        "dependsOrder": "parallel",
+        "problemMatcher": []
+      }
+    ]
+  }
+}
