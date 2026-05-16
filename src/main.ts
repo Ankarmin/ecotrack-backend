@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { getCorsOrigins } from './config/env';
+import { getCorsOrigins, isOriginAllowed } from './config/env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,7 +12,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (requestOrigin, callback) => {
-      if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
+      if (!requestOrigin || isOriginAllowed(requestOrigin, allowedOrigins)) {
         callback(null, true);
         return;
       }

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 const defaultCorsOrigins = [
   'http://localhost:3000',
   'https://ecotrack-frontend-beta.vercel.app',
+  'https://*.vercel.app',
 ];
 
 export function isTestEnvironment() {
@@ -42,15 +43,39 @@ export function getDatabaseUrl(configService: ConfigService) {
   const password = configService.get<string>('PGPASSWORD')?.trim();
 
   if (host && port && database && user && password) {
-    const encodedUser = encodeURIComponent(user);
-    const encodedPassword = encodeURIComponent(password);
-    const encodedDatabase = encodeURIComponent(database);
+    return buildDatabaseUrl({ host, port, database, user, password });
+  }
 
-    return `postgresql://${encodedUser}:${encodedPassword}@${host}:${port}/${encodedDatabase}`;
+  const fallbackConfig = pickDatabaseConfig(configService, [
+    {
+      host: 'DATABASE_HOST',
+      port: 'DATABASE_PORT',
+      database: 'DATABASE_NAME',
+      user: 'DATABASE_USER',
+      password: 'DATABASE_PASSWORD',
+    },
+    {
+      host: 'DB_HOST',
+      port: 'DB_PORT',
+      database: 'DB_NAME',
+      user: 'DB_USER',
+      password: 'DB_PASSWORD',
+    },
+    {
+      host: 'POSTGRES_HOST',
+      port: 'POSTGRES_PORT',
+      database: 'POSTGRES_DB',
+      user: 'POSTGRES_USER',
+      password: 'POSTGRES_PASSWORD',
+    },
+  ]);
+
+  if (fallbackConfig) {
+    return buildDatabaseUrl(fallbackConfig);
   }
 
   throw new Error(
-    'A PostgreSQL connection is required. Set DATABASE_URL or provide PGHOST, PGPORT, PGDATABASE, PGUSER and PGPASSWORD.',
+    'A PostgreSQL connection is required. Set DATABASE_URL, DATABASE_PUBLIC_URL, DATABASE_PRIVATE_URL, POSTGRES_URL, or provide PGHOST, PGPORT, PGDATABASE, PGUSER and PGPASSWORD.',
   );
 }
 
@@ -81,4 +106,63 @@ export function getCorsOrigins(configService: ConfigService) {
     .filter(Boolean);
 
   return origins.length > 0 ? origins : defaultCorsOrigins;
+}
+
+export function isOriginAllowed(origin: string, allowedOrigins: string[]) {
+  return allowedOrigins.some((allowedOrigin) => matchesOrigin(origin, allowedOrigin));
+}
+
+function matchesOrigin(origin: string, allowedOrigin: string) {
+  if (allowedOrigin === origin) {
+    return true;
+  }
+
+  if (!allowedOrigin.includes('*')) {
+    return false;
+  }
+
+  const escapedPattern = allowedOrigin
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+
+  return new RegExp(`^${escapedPattern}$`).test(origin);
+}
+
+function buildDatabaseUrl(config: {
+  host: string;
+  port: string;
+  database: string;
+  user: string;
+  password: string;
+}) {
+  const encodedUser = encodeURIComponent(config.user);
+  const encodedPassword = encodeURIComponent(config.password);
+  const encodedDatabase = encodeURIComponent(config.database);
+
+  return `postgresql://${encodedUser}:${encodedPassword}@${config.host}:${config.port}/${encodedDatabase}`;
+}
+
+function pickDatabaseConfig(
+  configService: ConfigService,
+  candidates: Array<{
+    host: string;
+    port: string;
+    database: string;
+    user: string;
+    password: string;
+  }>,
+) {
+  for (const candidate of candidates) {
+    const host = configService.get<string>(candidate.host)?.trim();
+    const port = configService.get<string>(candidate.port)?.trim();
+    const database = configService.get<string>(candidate.database)?.trim();
+    const user = configService.get<string>(candidate.user)?.trim();
+    const password = configService.get<string>(candidate.password)?.trim();
+
+    if (host && port && database && user && password) {
+      return { host, port, database, user, password };
+    }
+  }
+
+  return null;
 }
