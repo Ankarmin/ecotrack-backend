@@ -8,6 +8,8 @@ describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
+    process.env.NODE_ENV = 'test';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -20,7 +22,18 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect({
+        service: 'ecotrack-backend',
+        status: 'ok',
+        endpoints: {
+          auth: [
+            'POST /auth/register',
+            'POST /auth/login',
+            'GET /auth/me',
+          ],
+          wallet: ['GET /wallet', 'POST /wallet/redeem'],
+        },
+      });
   });
 
   afterEach(async () => {
