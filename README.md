@@ -1,98 +1,326 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# EcoTrack Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend principal de EcoTrack construido con `NestJS`, `TypeORM` y `PostgreSQL`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Estado actual
 
-## Description
+Capacidades backend actualmente presentes:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- autenticacion con JWT
+- registro e inicio de sesion
+- wallet
+- catalogo de recompensas
+- canje de recompensas
 
-## Project setup
+## Stack
 
-```bash
-$ pnpm install
+- Node.js 18+
+- pnpm 9
+- NestJS 11
+- TypeORM
+- PostgreSQL 16
+- Docker Compose
+
+## Estructura
+
+```text
+.
+|- src/
+|- test/
+|- .env
+|- .env.example
+|- docker-compose.yaml
+|- Dockerfile
+|- package.json
+\- README.md
 ```
 
-## Compile and run the project
+## Regla operativa
+
+Todos los comandos del proyecto deben ejecutarse desde la raiz del repositorio.
+
+## Requisitos
+
+- Node.js `>= 18`
+- pnpm `9.x`
+- Docker Desktop si vas a usar contenedores
+
+## Instalacion
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
 ```
 
-## Run tests
+## Variables de entorno
+
+Archivo plantilla:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+.env.example
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Plantilla para Railway:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+.env.railway.example
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Archivo local esperado:
 
-## Resources
+```bash
+.env
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Variables principales usadas hoy:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- `DATABASE_TARGET`
+- `PORT`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DATABASE_SSL`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `CORS_ORIGINS`
+- `APP_PUBLIC_URL`
 
-## Support
+Configuracion local actual de `.env`:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+DATABASE_TARGET=local
 
-## Stay in touch
+DATABASE_URL=
+DATABASE_PUBLIC_URL=
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+PORT=3001
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5434
+POSTGRES_DB=ecotrack
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+DATABASE_SSL=false
+JWT_SECRET=ecotrack-local-jwt-secret-change-this-before-production
+JWT_EXPIRES_IN=604800
+CORS_ORIGINS=http://localhost:3000,https://ecotrack-frontend-beta.vercel.app,https://*.vercel.app
+APP_PUBLIC_URL=http://localhost:${PORT}
+```
 
-## License
+## Formas de uso
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Opcion 1: Backend local con Docker
+
+Este es el flujo principal actual de trabajo.
+
+Levantar API + PostgreSQL:
+
+```bash
+pnpm run docker:up
+```
+
+Levantar en segundo plano:
+
+```bash
+pnpm run docker:up:detached
+```
+
+Ver logs:
+
+```bash
+pnpm run docker:logs
+```
+
+Apagar stack:
+
+```bash
+pnpm run docker:down
+```
+
+URLs esperadas:
+
+```text
+API: http://localhost:3001
+Postgres: postgresql://postgres:password@localhost:5434/ecotrack
+```
+
+### Opcion 2: Backend local sin Docker
+
+Solo tiene sentido si ya tienes un PostgreSQL accesible con los valores de `POSTGRES_*` del `.env`.
+
+Modo desarrollo:
+
+```bash
+pnpm run dev
+```
+
+Modo normal:
+
+```bash
+pnpm run start
+```
+
+Modo debug:
+
+```bash
+pnpm run start:debug
+```
+
+## Docker
+
+La infraestructura Docker esta centralizada en la raiz:
+
+- `docker-compose.yaml`
+- `Dockerfile`
+- `.dockerignore`
+
+Docker Compose hace esto:
+
+- levanta `api`
+- levanta `db`
+- fuerza `DATABASE_TARGET=local`
+- dentro de la red Docker usa `POSTGRES_HOST=db`
+- publica la API en `localhost:3001`
+- publica Postgres en `localhost:5434`
+
+## Scripts
+
+### Generales
+
+```bash
+pnpm run dev
+pnpm run start
+pnpm run start:dev
+pnpm run start:debug
+pnpm run start:prod
+pnpm run build
+pnpm run check-types
+pnpm run format
+pnpm run format:check
+pnpm run lint
+pnpm run lint:fix
+pnpm run lint:check
+```
+
+### Tests
+
+```bash
+pnpm run test
+pnpm run test:ci
+pnpm run test:watch
+pnpm run test:cov
+pnpm run test:debug
+pnpm run test:e2e
+```
+
+### Docker
+
+```bash
+pnpm run docker:up
+pnpm run docker:up:detached
+pnpm run docker:logs
+pnpm run docker:down
+```
+
+## Base de datos
+
+- Motor: PostgreSQL 16
+- Contenedor: `db`
+- Puerto host: `5434`
+- Puerto interno del contenedor: `5432`
+
+Cuando usas Docker Compose, el backend se conecta a Postgres dentro de la red interna usando `db:5432`.
+
+### Conexion desde TablePlus
+
+```text
+postgresql://postgres:password@localhost:5434/ecotrack
+```
+
+Campos equivalentes:
+
+- Host: `localhost`
+- Port: `5434`
+- Database: `ecotrack`
+- User: `postgres`
+- Password: `password`
+
+## Despliegue en Railway
+
+El backend ya esta listo para desplegarse en Railway usando el `Dockerfile` del repositorio.
+
+### Lo importante antes de desplegar
+
+- no hay `synchronize`
+- no hay seeds
+- no hay migraciones automaticas
+
+Eso significa que la base de datos en Railway debe existir previamente con el esquema correcto.
+
+### Builder esperado
+
+Railway puede usar directamente:
+
+```text
+Dockerfile
+```
+
+No necesitas cambiar el comando de arranque si Railway detecta el `Dockerfile`.
+
+### Variables recomendadas en Railway
+
+Usa como base:
+
+```bash
+.env.railway.example
+```
+
+Variables minimas:
+
+```bash
+DATABASE_TARGET=auto
+DATABASE_URL=
+DATABASE_PUBLIC_URL=
+PORT=3001
+DATABASE_SSL=true
+JWT_SECRET=
+JWT_EXPIRES_IN=604800
+CORS_ORIGINS=
+APP_PUBLIC_URL=
+```
+
+Notas:
+
+- Railway normalmente inyecta `DATABASE_URL` si conectas un servicio PostgreSQL.
+- Si tu base externa entrega otra URL publica, puedes usar `DATABASE_PUBLIC_URL`.
+- `JWT_SECRET` debe ser largo y privado.
+- `CORS_ORIGINS` debe incluir la URL real de tu frontend desplegado.
+- `APP_PUBLIC_URL` debe ser la URL publica final del backend en Railway.
+
+### Flujo recomendado
+
+1. Asegurar que la base PostgreSQL en Railway ya tenga el esquema correcto.
+2. Configurar las variables del servicio backend.
+3. Conectar el repositorio a Railway.
+4. Desplegar usando el `Dockerfile`.
+5. Probar el health básico en:
+
+```text
+GET /
+```
+
+### Endpoints principales desplegados
+
+```text
+POST /auth/register
+POST /auth/login
+GET /auth/me
+GET /users/me
+GET /materials
+GET /recycling-centers
+GET /coupons
+GET /wallet
+POST /wallet/redeem
+POST /recycling-records
+PATCH /recycling-records/:recyclingRecordId/validate
+```
