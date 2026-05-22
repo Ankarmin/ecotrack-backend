@@ -1,0 +1,11 @@
+node_modules
+.git
+.github
+.vscode
+dist
+coverage
+.env
+.env.local
+npm-debug.log
+pnpm-debug.log
+README.md
