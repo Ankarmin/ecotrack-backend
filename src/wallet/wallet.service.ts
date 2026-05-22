@@ -6,66 +6,79 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { RewardRedemptionEntity } from '../database/entities/reward-redemption.entity';
-import { RewardEntity } from '../database/entities/reward.entity';
-import { WalletEntity } from '../database/entities/wallet.entity';
+import { randomUUID } from 'node:crypto';
+
+import { CouponRedemptionEntity } from '../coupons/entities/coupon-redemption.entity';
+import { CouponEntity } from '../coupons/entities/coupon.entity';
+import { CouponRedemptionStatusEnum, WalletMovementTypeEnum } from '../database/database.enums';
+import { WalletMovementDetailEntity } from './entities/wallet-movement-detail.entity';
+import { WalletMovementEntity } from './entities/wallet-movement.entity';
+import { WalletEntity } from './entities/wallet.entity';
 
 @Injectable()
 export class WalletService {
   constructor(
     @InjectRepository(WalletEntity)
     private readonly walletRepository: Repository<WalletEntity>,
-    @InjectRepository(RewardEntity)
-    private readonly rewardRepository: Repository<RewardEntity>,
-    @InjectRepository(RewardRedemptionEntity)
-    private readonly redemptionRepository: Repository<RewardRedemptionEntity>,
+    @InjectRepository(CouponEntity)
+    private readonly couponRepository: Repository<CouponEntity>,
+    @InjectRepository(CouponRedemptionEntity)
+    private readonly redemptionRepository: Repository<CouponRedemptionEntity>,
     private readonly dataSource: DataSource,
   ) {}
 
   async getWallet(userId: string) {
     const wallet = await this.findWalletByUserId(userId);
 
-    const [rewards, recentRedemptions, redeemedCount] = await Promise.all([
-      this.rewardRepository.find(),
+    const [coupons, recentRedemptions, redeemedCount] = await Promise.all([
+      this.couponRepository.find({
+        order: {
+          isActive: 'DESC',
+          requiredPoints: 'ASC',
+          title: 'ASC',
+        },
+      }),
       this.redemptionRepository.find({
         where: { userId },
-        relations: { reward: true },
-        order: { createdAt: 'DESC' },
+        relations: { coupon: true },
+        order: { redeemedAt: 'DESC' },
         take: 10,
       }),
       this.redemptionRepository.count({ where: { userId } }),
     ]);
 
-    rewards.sort(
-      (left, right) =>
-        Number(right.available) - Number(left.available) ||
-        left.cost - right.cost ||
-        left.id.localeCompare(right.id),
-    );
-
     return {
       wallet: this.mapWallet(wallet, redeemedCount),
-      rewards: rewards.map((reward) => this.mapReward(reward)),
+      coupons: coupons.map((coupon) => this.mapCoupon(coupon)),
       recentRedemptions: recentRedemptions.map((redemption) =>
         this.mapRedemption(redemption),
       ),
     };
   }
 
-  async redeemReward(userId: string, rewardId: string) {
+  async redeemCoupon(userId: string, couponId: string) {
     return this.dataSource.transaction(async (manager) => {
-      const rewardRepository = manager.getRepository(RewardEntity);
+      const couponRepository = manager.getRepository(CouponEntity);
       const walletRepository = manager.getRepository(WalletEntity);
-      const redemptionRepository = manager.getRepository(RewardRedemptionEntity);
+      const redemptionRepository = manager.getRepository(CouponRedemptionEntity);
+      const walletMovementRepository = manager.getRepository(WalletMovementEntity);
+      const walletMovementDetailRepository = manager.getRepository(WalletMovementDetailEntity);
 
-      const reward = await rewardRepository.findOneBy({ id: rewardId });
+      const coupon = await couponRepository.findOne({
+        where: { couponId },
+        lock: { mode: 'pessimistic_write' },
+      });
 
-      if (!reward) {
-        throw new NotFoundException('Recompensa no encontrada');
+      if (!coupon) {
+        throw new NotFoundException('Cupon no encontrado');
       }
 
-      if (!reward.available) {
-        throw new ConflictException('La recompensa no está disponible');
+      if (!coupon.isActive) {
+        throw new ConflictException('El cupon no esta disponible');
+      }
+
+      if (coupon.stock <= 0) {
+        throw new ConflictException('El cupon no tiene stock disponible');
       }
 
       const wallet = await walletRepository.findOne({
@@ -77,27 +90,46 @@ export class WalletService {
         throw new NotFoundException('Billetera no encontrada');
       }
 
-      if (wallet.balance < reward.cost) {
+      if (wallet.availablePoints < coupon.requiredPoints) {
         throw new ConflictException('No tienes EcoPuntos suficientes para este canje');
       }
 
-      wallet.balance -= reward.cost;
+      wallet.availablePoints -= coupon.requiredPoints;
       const updatedWallet = await walletRepository.save(wallet);
+      coupon.stock -= 1;
+      await couponRepository.save(coupon);
 
       const redemption = redemptionRepository.create({
         userId,
-        rewardId: reward.id,
-        rewardTitle: reward.title,
-        cost: reward.cost,
+        couponId: coupon.couponId,
+        usedPoints: coupon.requiredPoints,
+        redemptionCode: randomUUID(),
+        status: CouponRedemptionStatusEnum.CANJEADO,
+        expiresAt: this.calculateExpirationDate(coupon.validityDays),
       });
 
       const savedRedemption = await redemptionRepository.save(redemption);
+
+      const movement = walletMovementRepository.create({
+        walletId: wallet.walletId,
+        movementType: WalletMovementTypeEnum.CANJE,
+        points: -coupon.requiredPoints,
+      });
+
+      const savedMovement = await walletMovementRepository.save(movement);
+
+      const movementDetail = walletMovementDetailRepository.create({
+        walletMovementId: savedMovement.walletMovementId,
+        couponRedemptionId: savedRedemption.couponRedemptionId,
+      });
+
+      await walletMovementDetailRepository.save(movementDetail);
       const redeemedCount = await redemptionRepository.count({ where: { userId } });
 
       return {
         message: 'Canje realizado correctamente',
         wallet: this.mapWallet(updatedWallet, redeemedCount),
-        redemption: this.mapRedemption(savedRedemption, reward),
+        redemption: this.mapRedemption(savedRedemption, coupon),
       };
     });
   }
@@ -114,46 +146,53 @@ export class WalletService {
 
   private mapWallet(wallet: WalletEntity, redeemedCount: number) {
     return {
-      balance: wallet.balance,
-      earnedToday: wallet.earnedToday,
-      weeklyChange: wallet.weeklyChange,
+      walletId: wallet.walletId,
+      availablePoints: wallet.availablePoints,
+      totalPoints: wallet.totalPoints,
+      balance: wallet.availablePoints,
       redeemedCount,
-      level: wallet.level,
-      updatedAt: wallet.updatedAt.toISOString(),
     };
   }
 
-  private mapReward(reward: RewardEntity) {
+  private mapCoupon(coupon: CouponEntity) {
     return {
-      id: reward.id,
-      title: reward.title,
-      cost: reward.cost,
-      category: reward.category,
-      icon: reward.icon,
-      color: reward.color,
-      available: reward.available,
+      id: coupon.couponId,
+      title: coupon.title,
+      description: coupon.description,
+      requiredPoints: coupon.requiredPoints,
+      stock: coupon.stock,
+      validityDays: coupon.validityDays,
+      isActive: coupon.isActive,
     };
   }
 
   private mapRedemption(
-    redemption: RewardRedemptionEntity,
-    reward?: RewardEntity,
+    redemption: CouponRedemptionEntity,
+    coupon?: CouponEntity,
   ) {
-    const rewardDetails = reward ?? redemption.reward;
+    const couponDetails = coupon ?? redemption.coupon;
 
-    if (!rewardDetails) {
-      throw new NotFoundException('Recompensa asociada no encontrada');
+    if (!couponDetails) {
+      throw new NotFoundException('Cupon asociado no encontrado');
     }
 
     return {
-      id: redemption.id,
-      rewardId: redemption.rewardId,
-      title: redemption.rewardTitle,
-      cost: redemption.cost,
-      category: rewardDetails.category,
-      icon: rewardDetails.icon,
-      color: rewardDetails.color,
-      createdAt: redemption.createdAt.toISOString(),
+      id: redemption.couponRedemptionId,
+      couponId: redemption.couponId,
+      title: couponDetails.title,
+      description: couponDetails.description,
+      usedPoints: redemption.usedPoints,
+      redemptionCode: redemption.redemptionCode,
+      status: redemption.status,
+      redeemedAt: redemption.redeemedAt.toISOString(),
+      expiresAt: redemption.expiresAt.toISOString(),
     };
+  }
+
+  private calculateExpirationDate(validityDays: number) {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validityDays);
+
+    return expiresAt;
   }
 }

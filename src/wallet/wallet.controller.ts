@@ -3,7 +3,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import type { AuthenticatedUser } from '../auth/auth.types';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RedeemRewardDto } from './dto/redeem-reward.dto';
+import { RedeemCouponDto } from './dto/redeem-coupon.dto';
 import { WalletService } from './wallet.service';
 
 @UseGuards(JwtAuthGuard)
@@ -17,10 +17,10 @@ export class WalletController {
   }
 
   @Post('redeem')
-  redeemReward(
+  redeemCoupon(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() redeemRewardDto: RedeemRewardDto,
+    @Body() redeemCouponDto: RedeemCouponDto,
   ) {
-    return this.walletService.redeemReward(user.userId, redeemRewardDto.rewardId);
+    return this.walletService.redeemCoupon(user.userId, redeemCouponDto.couponId);
   }
 }

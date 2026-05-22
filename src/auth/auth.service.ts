@@ -8,9 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { RewardRedemptionEntity } from '../database/entities/reward-redemption.entity';
-import { UserEntity } from '../database/entities/user.entity';
-import { WalletEntity } from '../database/entities/wallet.entity';
+import { CouponRedemptionEntity } from '../coupons/entities/coupon-redemption.entity';
+import { UserRoleEnum } from '../database/database.enums';
+import { UserEntity } from '../users/entities/user.entity';
+import { WalletEntity } from '../wallet/entities/wallet.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AccessTokenPayload } from './auth.types';
@@ -21,8 +22,8 @@ export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(RewardRedemptionEntity)
-    private readonly redemptionRepository: Repository<RewardRedemptionEntity>,
+    @InjectRepository(CouponRedemptionEntity)
+    private readonly redemptionRepository: Repository<CouponRedemptionEntity>,
     private readonly dataSource: DataSource,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
@@ -30,11 +31,13 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const email = this.normalizeEmail(registerDto.email);
-    const name = registerDto.name.trim();
+    const firstNames = registerDto.firstNames.trim();
+    const lastNames = registerDto.lastNames.trim();
+    const phone = registerDto.phone.trim();
 
     const existingUser = await this.userRepository.findOne({
       where: { email },
-      select: { id: true },
+      select: { userId: true },
     });
 
     if (existingUser) {
@@ -48,15 +51,17 @@ export class AuthService {
 
       const createdUser = await this.dataSource.transaction(async (manager) => {
         const user = manager.create(UserEntity, {
-          name,
+          firstNames,
+          lastNames,
           email,
-          passwordHash,
+          phone,
+          password: passwordHash,
         });
 
         await manager.save(user);
 
         const wallet = manager.create(WalletEntity, {
-          userId: user.id,
+          userId: user.userId,
         });
 
         await manager.save(wallet);
@@ -64,7 +69,7 @@ export class AuthService {
         return user;
       });
 
-      return this.buildAuthResponse(createdUser.id);
+      return this.buildAuthResponse(createdUser.userId);
     } catch (error) {
       if (this.isUniqueViolation(error)) {
         throw new ConflictException('Ya existe un usuario con ese correo');
@@ -87,7 +92,7 @@ export class AuthService {
 
     const isPasswordValid = await this.passwordService.verifyPassword(
       loginDto.password,
-      user.passwordHash,
+      user.password,
     );
 
     if (!isPasswordValid) {
@@ -95,7 +100,7 @@ export class AuthService {
     }
 
     const redeemedCount = await this.redemptionRepository.count({
-      where: { userId: user.id },
+      where: { userId: user.userId },
     });
 
     return this.buildAuthResponseFromUser(user, redeemedCount);
@@ -115,7 +120,7 @@ export class AuthService {
 
   private async findUserById(userId: string) {
     const user = await this.userRepository.findOne({
-      where: { id: userId },
+      where: { userId },
       relations: { wallet: true },
     });
 
@@ -140,8 +145,9 @@ export class AuthService {
     redeemedCount: number,
   ) {
     const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
+      sub: user.userId,
       email: user.email,
+      role: user.role,
     } satisfies AccessTokenPayload);
 
     return {
@@ -153,20 +159,24 @@ export class AuthService {
 
   private mapUser(user: UserEntity) {
     return {
-      id: user.id,
-      name: user.name,
+      id: user.userId,
+      firstNames: user.firstNames,
+      lastNames: user.lastNames,
+      name: `${user.firstNames} ${user.lastNames}`.trim(),
       email: user.email,
+      phone: user.phone,
+      role: user.role,
       createdAt: user.createdAt.toISOString(),
     };
   }
 
   private mapWallet(wallet: WalletEntity, redeemedCount: number) {
     return {
-      balance: wallet.balance,
-      earnedToday: wallet.earnedToday,
-      weeklyChange: wallet.weeklyChange,
+      walletId: wallet.walletId,
+      availablePoints: wallet.availablePoints,
+      totalPoints: wallet.totalPoints,
+      balance: wallet.availablePoints,
       redeemedCount,
-      level: wallet.level,
     };
   }
 
