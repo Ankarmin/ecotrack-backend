@@ -82,7 +82,7 @@
       {
         "label": "backend: build",
         "type": "shell",
-        "command": "npm run build",
+        "command": "pnpm run build",
         "options": {
           "cwd": "${workspaceFolder:backend}"
         },
@@ -92,7 +92,7 @@
       {
         "label": "backend: lint",
         "type": "shell",
-        "command": "npm run lint",
+        "command": "pnpm run lint",
         "options": {
           "cwd": "${workspaceFolder:backend}"
         },
@@ -101,7 +101,7 @@
       {
         "label": "backend: test",
         "type": "shell",
-        "command": "npm run test",
+        "command": "pnpm run test",
         "options": {
           "cwd": "${workspaceFolder:backend}"
         },
@@ -111,7 +111,7 @@
       {
         "label": "frontend: dev",
         "type": "shell",
-        "command": "npm run dev",
+        "command": "pnpm run dev",
         "options": {
           "cwd": "${workspaceFolder:frontend}"
         },
@@ -120,7 +120,7 @@
       {
         "label": "frontend: build",
         "type": "shell",
-        "command": "npm run build",
+        "command": "pnpm run build",
         "options": {
           "cwd": "${workspaceFolder:frontend}"
         },
@@ -129,7 +129,7 @@
       {
         "label": "frontend: lint",
         "type": "shell",
-        "command": "npm run lint",
+        "command": "pnpm run lint",
         "options": {
           "cwd": "${workspaceFolder:frontend}"
         },
