@@ -73,7 +73,7 @@
       {
         "label": "backend: dev",
         "type": "shell",
-        "command": "npm run start:dev",
+        "command": "pnpm run start:dev",
         "options": {
           "cwd": "${workspaceFolder:backend}"
         },
