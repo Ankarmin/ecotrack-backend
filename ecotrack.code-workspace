@@ -62,7 +62,7 @@
         "name": "Frontend: Next.js dev",
         "type": "node-terminal",
         "request": "launch",
-        "command": "npm run dev",
+        "command": "pnpm run dev",
         "cwd": "${workspaceFolder:frontend}"
       }
     ]
