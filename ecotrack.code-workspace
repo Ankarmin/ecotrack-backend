@@ -118,6 +118,24 @@
         "problemMatcher": []
       },
       {
+        "label": "backend: docker up",
+        "type": "shell",
+        "command": "pnpm run docker:up",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "backend: docker down",
+        "type": "shell",
+        "command": "pnpm run docker:down",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "problemMatcher": []
+      },
+      {
         "label": "frontend: dev",
         "type": "shell",
         "command": "pnpm run dev",
