@@ -17,6 +17,26 @@
       "source.sortMembers": "explicit"
     },
     "security.workspace.trust.untrustedFiles": "prompt",
+    "search.exclude": {
+      "**/.env": true,
+      "**/.env.*": true,
+      "**/.git": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/coverage": true,
+      "**/dist": true,
+      "**/node_modules": true
+    },
+    "files.watcherExclude": {
+      "**/.git/**": true,
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/.next/**": true,
+      "**/.turbo/**": true,
+      "**/coverage/**": true,
+      "**/dist/**": true,
+      "**/node_modules/**": true
+    },
     "debug.node.autoAttach": "smart"
   },
   "extensions": {
