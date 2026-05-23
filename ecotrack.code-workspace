@@ -99,16 +99,6 @@
         "problemMatcher": []
       },
       {
-        "label": "backend: test",
-        "type": "shell",
-        "command": "pnpm run test",
-        "options": {
-          "cwd": "${workspaceFolder:backend}"
-        },
-        "group": "test",
-        "problemMatcher": []
-      },
-      {
         "label": "frontend: dev",
         "type": "shell",
         "command": "pnpm run dev",
