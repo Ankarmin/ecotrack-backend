@@ -23,7 +23,6 @@
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "orta.vscode-jest",
       "bradlc.vscode-tailwindcss"
     ]
   },
