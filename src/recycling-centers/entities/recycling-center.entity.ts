@@ -33,7 +33,10 @@ export class RecyclingCenterEntity {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => RecyclingCenterScheduleEntity, (schedule) => schedule.recyclingCenter)
+  @OneToMany(
+    () => RecyclingCenterScheduleEntity,
+    (schedule) => schedule.recyclingCenter,
+  )
   schedules: RecyclingCenterScheduleEntity[];
 
   @OneToMany(() => RecyclingRecordEntity, (record) => record.recyclingCenter)

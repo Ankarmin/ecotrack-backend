@@ -14,7 +14,11 @@ import { PasswordService } from './password.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, WalletEntity, CouponRedemptionEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      WalletEntity,
+      CouponRedemptionEntity,
+    ]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {

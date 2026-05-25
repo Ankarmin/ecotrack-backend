@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { CouponRedemptionEntity } from '../coupons/entities/coupon-redemption.entity';
-import { UserRoleEnum } from '../database/database.enums';
 import { UserEntity } from '../users/entities/user.entity';
 import { WalletEntity } from '../wallet/entities/wallet.entity';
 import { LoginDto } from './dto/login.dto';
@@ -195,9 +194,9 @@ export class AuthService {
   private isUniqueViolation(error: unknown) {
     return Boolean(
       error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        error.code === '23505',
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === '23505',
     );
   }
 }

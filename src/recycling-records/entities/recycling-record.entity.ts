@@ -63,6 +63,9 @@ export class RecyclingRecordEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @OneToOne(() => RecyclingValidationEntity, (validation) => validation.recyclingRecord)
+  @OneToOne(
+    () => RecyclingValidationEntity,
+    (validation) => validation.recyclingRecord,
+  )
   validation: RecyclingValidationEntity;
 }

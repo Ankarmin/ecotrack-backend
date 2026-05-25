@@ -4,7 +4,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -34,7 +33,12 @@ export class CouponRedemptionEntity {
   @Column({ name: 'used_points', type: 'int' })
   usedPoints: number;
 
-  @Column({ name: 'redemption_code', type: 'varchar', length: 100, unique: true })
+  @Column({
+    name: 'redemption_code',
+    type: 'varchar',
+    length: 100,
+    unique: true,
+  })
   redemptionCode: string;
 
   @Column({

@@ -50,7 +50,9 @@ export function getCorsOrigins(configService: ConfigService) {
 }
 
 export function isOriginAllowed(origin: string, allowedOrigins: string[]) {
-  return allowedOrigins.some((allowedOrigin) => matchesOrigin(origin, allowedOrigin));
+  return allowedOrigins.some((allowedOrigin) =>
+    matchesOrigin(origin, allowedOrigin),
+  );
 }
 
 function matchesOrigin(origin: string, allowedOrigin: string) {

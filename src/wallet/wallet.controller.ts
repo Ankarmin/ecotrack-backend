@@ -21,6 +21,9 @@ export class WalletController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() redeemCouponDto: RedeemCouponDto,
   ) {
-    return this.walletService.redeemCoupon(user.userId, redeemCouponDto.couponId);
+    return this.walletService.redeemCoupon(
+      user.userId,
+      redeemCouponDto.couponId,
+    );
   }
 }

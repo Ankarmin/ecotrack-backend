@@ -46,13 +46,15 @@ function buildLocalDatabaseUrl(configService: ConfigService): string | null {
 function hasRailwayRuntime(configService: ConfigService): boolean {
   return Boolean(
     configService.get<string>('RAILWAY_ENVIRONMENT') ||
-      configService.get<string>('RAILWAY_ENVIRONMENT_ID') ||
-      configService.get<string>('RAILWAY_PROJECT_ID') ||
-      configService.get<string>('RAILWAY_SERVICE_ID'),
+    configService.get<string>('RAILWAY_ENVIRONMENT_ID') ||
+    configService.get<string>('RAILWAY_PROJECT_ID') ||
+    configService.get<string>('RAILWAY_SERVICE_ID'),
   );
 }
 
-function resolveRailwayDatabaseUrl(configService: ConfigService): string | null {
+function resolveRailwayDatabaseUrl(
+  configService: ConfigService,
+): string | null {
   return (
     configService.get<string>('DATABASE_URL') ||
     configService.get<string>('DATABASE_PUBLIC_URL') ||

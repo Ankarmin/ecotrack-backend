@@ -48,7 +48,9 @@ export class RecyclingRecordsService {
     }
 
     if (!recyclingCenter || !recyclingCenter.isActive) {
-      throw new NotFoundException('Centro de reciclaje no encontrado o inactivo');
+      throw new NotFoundException(
+        'Centro de reciclaje no encontrado o inactivo',
+      );
     }
 
     const existingRecord = await this.recyclingRecordRepository.findOneBy({
@@ -116,15 +118,22 @@ export class RecyclingRecordsService {
       validator.role !== UserRoleEnum.VALIDADOR &&
       validator.role !== UserRoleEnum.ADMINISTRADOR
     ) {
-      throw new ForbiddenException('Solo un validador o administrador puede validar');
+      throw new ForbiddenException(
+        'Solo un validador o administrador puede validar',
+      );
     }
 
     return this.dataSource.transaction(async (manager) => {
       const recordRepository = manager.getRepository(RecyclingRecordEntity);
-      const validationRepository = manager.getRepository(RecyclingValidationEntity);
+      const validationRepository = manager.getRepository(
+        RecyclingValidationEntity,
+      );
       const walletRepository = manager.getRepository(WalletEntity);
-      const walletMovementRepository = manager.getRepository(WalletMovementEntity);
-      const walletMovementDetailRepository = manager.getRepository(WalletMovementDetailEntity);
+      const walletMovementRepository =
+        manager.getRepository(WalletMovementEntity);
+      const walletMovementDetailRepository = manager.getRepository(
+        WalletMovementDetailEntity,
+      );
 
       const record = await recordRepository.findOne({
         where: { recyclingRecordId },

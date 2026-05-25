@@ -10,7 +10,10 @@ import { randomUUID } from 'node:crypto';
 
 import { CouponRedemptionEntity } from '../coupons/entities/coupon-redemption.entity';
 import { CouponEntity } from '../coupons/entities/coupon.entity';
-import { CouponRedemptionStatusEnum, WalletMovementTypeEnum } from '../database/database.enums';
+import {
+  CouponRedemptionStatusEnum,
+  WalletMovementTypeEnum,
+} from '../database/database.enums';
 import { WalletMovementDetailEntity } from './entities/wallet-movement-detail.entity';
 import { WalletMovementEntity } from './entities/wallet-movement.entity';
 import { WalletEntity } from './entities/wallet.entity';
@@ -60,9 +63,14 @@ export class WalletService {
     return this.dataSource.transaction(async (manager) => {
       const couponRepository = manager.getRepository(CouponEntity);
       const walletRepository = manager.getRepository(WalletEntity);
-      const redemptionRepository = manager.getRepository(CouponRedemptionEntity);
-      const walletMovementRepository = manager.getRepository(WalletMovementEntity);
-      const walletMovementDetailRepository = manager.getRepository(WalletMovementDetailEntity);
+      const redemptionRepository = manager.getRepository(
+        CouponRedemptionEntity,
+      );
+      const walletMovementRepository =
+        manager.getRepository(WalletMovementEntity);
+      const walletMovementDetailRepository = manager.getRepository(
+        WalletMovementDetailEntity,
+      );
 
       const coupon = await couponRepository.findOne({
         where: { couponId },
@@ -91,7 +99,9 @@ export class WalletService {
       }
 
       if (wallet.availablePoints < coupon.requiredPoints) {
-        throw new ConflictException('No tienes EcoPuntos suficientes para este canje');
+        throw new ConflictException(
+          'No tienes EcoPuntos suficientes para este canje',
+        );
       }
 
       wallet.availablePoints -= coupon.requiredPoints;
@@ -124,7 +134,9 @@ export class WalletService {
       });
 
       await walletMovementDetailRepository.save(movementDetail);
-      const redeemedCount = await redemptionRepository.count({ where: { userId } });
+      const redeemedCount = await redemptionRepository.count({
+        where: { userId },
+      });
 
       return {
         message: 'Canje realizado correctamente',

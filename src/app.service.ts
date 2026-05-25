@@ -9,7 +9,11 @@ export class AppService {
       endpoints: {
         auth: ['POST /auth/register', 'POST /auth/login', 'GET /auth/me'],
         users: ['GET /users/me'],
-        materials: ['GET /materials', 'GET /materials/:materialId', 'POST /materials'],
+        materials: [
+          'GET /materials',
+          'GET /materials/:materialId',
+          'POST /materials',
+        ],
         recyclingCenters: [
           'GET /recycling-centers',
           'GET /recycling-centers/:recyclingCenterId',

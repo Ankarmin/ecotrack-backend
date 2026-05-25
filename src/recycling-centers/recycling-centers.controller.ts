@@ -6,7 +6,9 @@ import { RecyclingCentersService } from './recycling-centers.service';
 
 @Controller('recycling-centers')
 export class RecyclingCentersController {
-  constructor(private readonly recyclingCentersService: RecyclingCentersService) {}
+  constructor(
+    private readonly recyclingCentersService: RecyclingCentersService,
+  ) {}
 
   @Get()
   findAll() {

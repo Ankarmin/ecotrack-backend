@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -10,7 +18,9 @@ import { RecyclingRecordsService } from './recycling-records.service';
 @UseGuards(JwtAuthGuard)
 @Controller('recycling-records')
 export class RecyclingRecordsController {
-  constructor(private readonly recyclingRecordsService: RecyclingRecordsService) {}
+  constructor(
+    private readonly recyclingRecordsService: RecyclingRecordsService,
+  ) {}
 
   @Post()
   create(
@@ -39,6 +49,10 @@ export class RecyclingRecordsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() validateDto: ValidateRecyclingRecordDto,
   ) {
-    return this.recyclingRecordsService.validateRecord(recyclingRecordId, user, validateDto);
+    return this.recyclingRecordsService.validateRecord(
+      recyclingRecordId,
+      user,
+      validateDto,
+    );
   }
 }

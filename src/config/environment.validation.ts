@@ -102,7 +102,7 @@ export function validateEnvironment(config: Record<string, unknown>) {
 
   const hasDirectDatabaseUrl = Boolean(
     validatedConfig.DATABASE_PUBLIC_URL?.trim() ||
-      validatedConfig.DATABASE_URL?.trim(),
+    validatedConfig.DATABASE_URL?.trim(),
   );
   const hasLocalDatabaseConfig = [
     validatedConfig.POSTGRES_HOST,
