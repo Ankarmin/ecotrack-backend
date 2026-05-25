@@ -1,10 +1,10 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 
+import { trimString } from '../../common/transforms/string.transforms';
+
 export class RedeemCouponDto {
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
+  @Transform(trimString)
   @IsString()
   @IsNotEmpty()
   couponId: string;

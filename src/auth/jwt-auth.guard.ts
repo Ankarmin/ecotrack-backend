@@ -10,9 +10,7 @@ import { AccessTokenPayload, RequestWithUser } from './auth.types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  private readonly jwtService = new JwtService({
-    secret: process.env.JWT_SECRET ?? 'test-secret',
-  });
+  constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -23,7 +21,8 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<AccessTokenPayload>(token);
+      const payload =
+        await this.jwtService.verifyAsync<AccessTokenPayload>(token);
 
       request.user = {
         userId: payload.sub,

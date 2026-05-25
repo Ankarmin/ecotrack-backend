@@ -7,32 +7,29 @@ import {
   Matches,
 } from 'class-validator';
 
+import {
+  normalizeEmail,
+  trimString,
+} from '../../common/transforms/string.transforms';
+
 export class RegisterDto {
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
+  @Transform(trimString)
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   firstNames: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
+  @Transform(trimString)
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   lastNames: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim().toLowerCase() : value,
-  )
+  @Transform(normalizeEmail)
   @IsEmail()
   email: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
+  @Transform(trimString)
   @IsString()
   @MinLength(7)
   @MaxLength(20)

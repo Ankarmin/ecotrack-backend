@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MaterialEntity } from '../materials/entities/material.entity';
 import { RecyclingCenterEntity } from '../recycling-centers/entities/recycling-center.entity';
 import { RecyclingRecordEntity } from './entities/recycling-record.entity';
@@ -27,6 +26,6 @@ import { RecyclingRecordsService } from './recycling-records.service';
     AuthModule,
   ],
   controllers: [RecyclingRecordsController],
-  providers: [RecyclingRecordsService, JwtAuthGuard],
+  providers: [RecyclingRecordsService],
 })
 export class RecyclingRecordsModule {}
