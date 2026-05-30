@@ -9,6 +9,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { WalletEntity } from '../wallet/entities/wallet.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ClientGuard } from './client.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PasswordService } from './password.service';
 
@@ -36,7 +37,7 @@ import { PasswordService } from './password.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PasswordService, JwtAuthGuard],
-  exports: [JwtAuthGuard, JwtModule],
+  providers: [AuthService, PasswordService, JwtAuthGuard, ClientGuard],
+  exports: [JwtAuthGuard, ClientGuard, JwtModule, PasswordService],
 })
 export class AuthModule {}

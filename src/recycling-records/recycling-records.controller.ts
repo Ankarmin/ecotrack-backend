@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { ClientGuard } from '../auth/client.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
@@ -22,6 +23,7 @@ export class RecyclingRecordsController {
     private readonly recyclingRecordsService: RecyclingRecordsService,
   ) {}
 
+  @UseGuards(ClientGuard)
   @Post()
   create(
     @CurrentUser() user: AuthenticatedUser,

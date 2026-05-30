@@ -15,6 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AccessTokenPayload } from './auth.types';
 import { PasswordService } from './password.service';
+import { roleHasWallet } from './user-role.utils';
 
 @Injectable()
 export class AuthService {
@@ -59,11 +60,13 @@ export class AuthService {
 
         await manager.save(user);
 
-        const wallet = manager.create(WalletEntity, {
-          userId: user.userId,
-        });
+        if (roleHasWallet(user.role)) {
+          const wallet = manager.create(WalletEntity, {
+            userId: user.userId,
+          });
 
-        await manager.save(wallet);
+          await manager.save(wallet);
+        }
 
         return user;
       });
@@ -113,7 +116,7 @@ export class AuthService {
 
     return {
       user: this.mapUser(user),
-      wallet: this.mapWallet(this.getWallet(user), redeemedCount),
+      wallet: this.mapOptionalWallet(user, redeemedCount),
     };
   }
 
@@ -152,7 +155,7 @@ export class AuthService {
     return {
       accessToken,
       user: this.mapUser(user),
-      wallet: this.mapWallet(this.getWallet(user), redeemedCount),
+      wallet: this.mapOptionalWallet(user, redeemedCount),
     };
   }
 
@@ -177,6 +180,14 @@ export class AuthService {
       balance: wallet.availablePoints,
       redeemedCount,
     };
+  }
+
+  private mapOptionalWallet(user: UserEntity, redeemedCount: number) {
+    if (!roleHasWallet(user.role)) {
+      return null;
+    }
+
+    return this.mapWallet(this.getWallet(user), redeemedCount);
   }
 
   private getWallet(user: UserEntity) {
