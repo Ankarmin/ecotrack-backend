@@ -1,5 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 
+import { ClientGuard } from '../auth/client.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/auth.types';
@@ -13,5 +14,11 @@ export class UsersController {
   @Get('me')
   getProfile(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.getProfile(user.userId);
+  }
+
+  @UseGuards(ClientGuard)
+  @Get('ranking/weekly')
+  getWeeklyRanking(@CurrentUser() user: AuthenticatedUser) {
+    return this.usersService.getWeeklyRanking(user.userId);
   }
 }
