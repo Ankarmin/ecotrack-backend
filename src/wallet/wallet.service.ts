@@ -85,6 +85,10 @@ export class WalletService {
         throw new ConflictException('El cupon no esta disponible');
       }
 
+      if (this.isCouponExpired(coupon)) {
+        throw new ConflictException('El cupon ya expiro');
+      }
+
       if (coupon.stock <= 0) {
         throw new ConflictException('El cupon no tiene stock disponible');
       }
@@ -174,7 +178,8 @@ export class WalletService {
       requiredPoints: coupon.requiredPoints,
       stock: coupon.stock,
       validityDays: coupon.validityDays,
-      isActive: coupon.isActive,
+      isActive: coupon.isActive && !this.isCouponExpired(coupon),
+      status: this.getCouponStatus(coupon),
     };
   }
 
@@ -205,6 +210,32 @@ export class WalletService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + validityDays);
 
+    return expiresAt;
+  }
+
+  private isCouponExpired(coupon: CouponEntity) {
+    return this.calculateCouponExpiresAt(coupon) < new Date();
+  }
+
+  private getCouponStatus(coupon: CouponEntity) {
+    if (!coupon.isActive) {
+      return 'Inactivo';
+    }
+
+    if (this.isCouponExpired(coupon)) {
+      return 'Expirado';
+    }
+
+    if (coupon.stock <= 0) {
+      return 'Usado';
+    }
+
+    return 'Activo';
+  }
+
+  private calculateCouponExpiresAt(coupon: CouponEntity) {
+    const expiresAt = new Date(coupon.createdAt);
+    expiresAt.setDate(expiresAt.getDate() + coupon.validityDays);
     return expiresAt;
   }
 }
