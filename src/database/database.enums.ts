@@ -24,9 +24,9 @@ export enum CouponRedemptionStatusEnum {
 export enum WeekdayEnum {
   LUNES = 'Lunes',
   MARTES = 'Martes',
-  MIERCOLES = 'Miercoles',
+  MIERCOLES = 'Miércoles',
   JUEVES = 'Jueves',
   VIERNES = 'Viernes',
-  SABADO = 'Sabado',
+  SABADO = 'Sábado',
   DOMINGO = 'Domingo',
 }

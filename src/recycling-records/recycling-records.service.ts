@@ -72,7 +72,7 @@ export class RecyclingRecordsService {
     });
 
     if (existingRecord) {
-      throw new ConflictException('El codigo QR ya fue registrado');
+      throw new ConflictException('El código QR ya fue registrado');
     }
 
     const savedCo2 = Number(material.co2PerKg) * createDto.weightKg;
@@ -194,7 +194,7 @@ export class RecyclingRecordsService {
 
     if (!record) {
       throw new NotFoundException(
-        'No se encontro el reciclaje en tu centro de acopio',
+        'No se encontró el reciclaje en tu centro de acopio',
       );
     }
 
@@ -246,7 +246,7 @@ export class RecyclingRecordsService {
 
     if (!record) {
       throw new NotFoundException(
-        'No se encontro un reciclaje con ese codigo QR',
+        'No se encontro un reciclaje con ese código QR',
       );
     }
 
