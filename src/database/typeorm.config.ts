@@ -29,57 +29,8 @@ const databaseEntities = [
   WalletMovementDetailEntity,
 ];
 
-function buildLocalDatabaseUrl(configService: ConfigService): string | null {
-  const host = configService.get<string>('POSTGRES_HOST');
-  const port = configService.get<string>('POSTGRES_PORT');
-  const database = configService.get<string>('POSTGRES_DB');
-  const user = configService.get<string>('POSTGRES_USER');
-  const password = configService.get<string>('POSTGRES_PASSWORD');
-
-  if (!host || !port || !database || !user || !password) {
-    return null;
-  }
-
-  return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
-}
-
-function hasRailwayRuntime(configService: ConfigService): boolean {
-  return Boolean(
-    configService.get<string>('RAILWAY_ENVIRONMENT') ||
-    configService.get<string>('RAILWAY_ENVIRONMENT_ID') ||
-    configService.get<string>('RAILWAY_PROJECT_ID') ||
-    configService.get<string>('RAILWAY_SERVICE_ID'),
-  );
-}
-
-function resolveRailwayDatabaseUrl(
-  configService: ConfigService,
-): string | null {
-  return (
-    configService.get<string>('DATABASE_URL') ||
-    configService.get<string>('DATABASE_PUBLIC_URL') ||
-    null
-  );
-}
-
 function resolveDatabaseUrl(configService: ConfigService): string {
-  const databaseTarget = configService.get<string>('DATABASE_TARGET', 'auto');
-  const railwayDatabaseUrl = resolveRailwayDatabaseUrl(configService);
-  const localDatabaseUrl = buildLocalDatabaseUrl(configService);
-
-  if (databaseTarget === 'railway') {
-    return railwayDatabaseUrl ?? '';
-  }
-
-  if (databaseTarget === 'local') {
-    return localDatabaseUrl ?? '';
-  }
-
-  if (hasRailwayRuntime(configService) && railwayDatabaseUrl) {
-    return railwayDatabaseUrl;
-  }
-
-  return localDatabaseUrl || railwayDatabaseUrl || '';
+  return configService.get<string>('DATABASE_PUBLIC_URL', '');
 }
 
 function isSslEnabled(configService: ConfigService): boolean {
