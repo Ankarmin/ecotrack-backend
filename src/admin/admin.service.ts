@@ -234,7 +234,7 @@ export class AdminService {
   }
 
   async createCenter(createDto: CreateAdminRecyclingCenterDto) {
-    return this.dataSource.transaction(async (manager) => {
+    const savedCenterId = await this.dataSource.transaction(async (manager) => {
       const centerRepository = manager.getRepository(RecyclingCenterEntity);
 
       const center = centerRepository.create({
@@ -257,15 +257,17 @@ export class AdminService {
         createDto.validatorUserIds ?? [],
       );
 
-      return this.findOneCenter(savedCenter.recyclingCenterId);
+      return savedCenter.recyclingCenterId;
     });
+
+    return this.findOneCenter(savedCenterId);
   }
 
   async updateCenter(
     recyclingCenterId: string,
     updateDto: UpdateAdminRecyclingCenterDto,
   ) {
-    return this.dataSource.transaction(async (manager) => {
+    await this.dataSource.transaction(async (manager) => {
       const centerRepository = manager.getRepository(RecyclingCenterEntity);
       const center = await centerRepository.findOneBy({ recyclingCenterId });
 
@@ -312,9 +314,9 @@ export class AdminService {
           .getRepository(UserRecyclingCenterEntity)
           .update({ recyclingCenterId, isActive: true }, { isActive: false });
       }
-
-      return this.findOneCenter(recyclingCenterId);
     });
+
+    return this.findOneCenter(recyclingCenterId);
   }
 
   async deactivateCenter(recyclingCenterId: string) {
@@ -815,7 +817,7 @@ export class AdminService {
 
     if (uniqueWeekdays.size !== schedules.length) {
       throw new BadRequestException(
-        'No puedes repetir dias en el horario del centro',
+        'No puedes repetir días en el horario del centro',
       );
     }
 
