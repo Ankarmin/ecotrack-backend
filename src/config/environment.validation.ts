@@ -25,6 +25,14 @@ class EnvironmentVariables {
   @IsBooleanString()
   DATABASE_SSL = 'false';
 
+  @IsOptional()
+  @IsBooleanString()
+  DATABASE_SYNCHRONIZE = 'false';
+
+  @IsOptional()
+  @IsBooleanString()
+  DATABASE_DROP_SCHEMA = 'false';
+
   @IsString()
   @MinLength(16)
   JWT_SECRET!: string;
