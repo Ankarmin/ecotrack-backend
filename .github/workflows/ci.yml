@@ -3,8 +3,7 @@ name: CI
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+  push: {}
   workflow_dispatch:
 
 concurrency:
@@ -114,7 +113,7 @@ jobs:
       - run: pnpm test:e2e
 
   performance-smoke:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
