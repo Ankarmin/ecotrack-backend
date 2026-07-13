@@ -44,11 +44,11 @@ export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
     type: 'postgres',
     url: resolveDatabaseUrl(configService),
     entities: databaseEntities,
-    synchronize: false,
+    synchronize: true,
     ssl: isSslEnabled(configService)
       ? {
-          rejectUnauthorized: false,
-        }
+        rejectUnauthorized: false,
+      }
       : false,
   }),
 };
