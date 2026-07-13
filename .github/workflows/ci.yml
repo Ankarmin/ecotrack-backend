@@ -3,22 +3,33 @@ name: CI
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+  push: {}
+  workflow_dispatch:
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -29,3 +40,135 @@ jobs:
       - run: pnpm check-types
 
       - run: pnpm build
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec jest --coverage --runInBand
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: coverage/
+          if-no-files-found: ignore
+
+  api-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ecotrack
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ecotrack"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      PORT: 3001
+      DATABASE_PUBLIC_URL: postgresql://postgres:password@localhost:5432/ecotrack
+      DATABASE_SSL: 'false'
+      DATABASE_SYNCHRONIZE: 'true'
+      DATABASE_DROP_SCHEMA: 'true'
+      JWT_SECRET: ecotrack-ci-jwt-secret-123456
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test:e2e
+
+  performance-smoke:
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ecotrack
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ecotrack"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PORT: 3001
+      DATABASE_PUBLIC_URL: postgresql://postgres:password@localhost:5432/ecotrack
+      DATABASE_SSL: 'false'
+      DATABASE_SYNCHRONIZE: 'true'
+      DATABASE_DROP_SCHEMA: 'true'
+      JWT_SECRET: ecotrack-ci-jwt-secret-123456
+      BASE_URL: http://127.0.0.1:3001
+      K6_VUS: '5'
+      K6_DURATION: 15s
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - uses: grafana/setup-k6-action@v1
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - run: pnpm start:prod > backend.log 2>&1 &
+
+      - run: timeout 60 bash -c 'until curl -fsS http://127.0.0.1:3001/ > /dev/null; do sleep 2; done'
+
+      - run: pnpm test:performance:auth
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-performance-logs
+          path: backend.log
+          if-no-files-found: ignore

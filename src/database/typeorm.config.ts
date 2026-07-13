@@ -37,6 +37,14 @@ function isSslEnabled(configService: ConfigService): boolean {
   return configService.get<string>('DATABASE_SSL', 'false') === 'true';
 }
 
+function isSynchronizeEnabled(configService: ConfigService): boolean {
+  return configService.get<string>('DATABASE_SYNCHRONIZE', 'false') === 'true';
+}
+
+function isDropSchemaEnabled(configService: ConfigService): boolean {
+  return configService.get<string>('DATABASE_DROP_SCHEMA', 'false') === 'true';
+}
+
 export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
   inject: [ConfigService],
@@ -44,7 +52,8 @@ export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
     type: 'postgres',
     url: resolveDatabaseUrl(configService),
     entities: databaseEntities,
-    synchronize: false,
+    synchronize: isSynchronizeEnabled(configService),
+    dropSchema: isDropSchemaEnabled(configService),
     ssl: isSslEnabled(configService)
       ? {
           rejectUnauthorized: false,

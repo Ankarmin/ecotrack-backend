@@ -15,13 +15,18 @@ import { RecyclingRecordsModule } from './recycling-records/recycling-records.mo
 import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
 
+const envFilePath =
+  process.env.NODE_ENV === 'test'
+    ? ['.env.test', '.env.local', '.env']
+    : ['.env.local', '.env'];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       expandVariables: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath,
       validate: validateEnvironment,
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
